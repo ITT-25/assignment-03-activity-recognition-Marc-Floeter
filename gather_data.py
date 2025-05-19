@@ -11,16 +11,17 @@ SAVE_DATA_PATH = "data/marc"
 logging = False
 writer = None
 file = None
-activity_no = 3
+activity_no = 0
 rep_start_time = 0
-rep_no = 5
+rep_no = 1
 id = 0
-acc_x = 0
-acc_y = 0
-acc_z = 0
-gyro_x = 0
-gyro_y = 0
-gyro_z = 0
+timestamp = []
+acc_x = []
+acc_y = []
+acc_z = []
+gyro_x = []
+gyro_y = []
+gyro_z = []
 
 # use UPD (via WiFi) for communication
 PORT = 5700
@@ -44,28 +45,42 @@ while True:
     if logging:
         if time.time() - rep_start_time < SAMPLE_LENGTH:
             id += 1
-            timestamp = time.time()
-            acc_x = sensor.get_value('accelerometer')['x']
-            acc_y = sensor.get_value('accelerometer')['y']
-            acc_z = sensor.get_value('accelerometer')['z']
-            gyro_x = sensor.get_value('gyroscope')['x']
-            gyro_y = sensor.get_value('gyroscope')['y']
-            gyro_z = sensor.get_value('gyroscope')['z']
-            writer.writerow([timestamp, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z])
-            print(f'id: {id}, t: {timestamp}, ax: {acc_y}, ay: {acc_x}, az: {acc_z}, gx: {gyro_x}, gy: {gyro_y}, gz: {gyro_z}')
+            timestamp.append(time.time())
+            acc_x.append(sensor.get_value('accelerometer')['x'])
+            acc_y.append(sensor.get_value('accelerometer')['y'])
+            acc_z.append(sensor.get_value('accelerometer')['z'])
+            gyro_x.append(sensor.get_value('gyroscope')['x'])
+            gyro_y.append(sensor.get_value('gyroscope')['y'])
+            gyro_z.append(sensor.get_value('gyroscope')['z'])
+            # print(f'id: {id}, t: {timestamp}, ax: {acc_y}, ay: {acc_x}, az: {acc_z}, gx: {gyro_x}, gy: {gyro_y}, gz: {gyro_z}')
         else:
             print(f'Logging beendet für {ACTIVITIES[activity_no]}-{rep_no}/{REPS_PER_ACTIVITY}.') 
+
             logging = False
+            for i in range(len(timestamp)):
+                writer.writerow([timestamp[i], acc_x[i], acc_y[i], acc_z[i], gyro_x[i], gyro_y[i], gyro_z[i]])
             file.close()
             id = 0
             rep_start_time = 0
             rep_no += 1
+            timestamp.clear()
+            acc_x.clear()
+            acc_y.clear()
+            acc_z.clear()
+            gyro_x.clear()
+            gyro_y.clear()
+            gyro_z.clear()
+
             if rep_no > REPS_PER_ACTIVITY:
                 rep_no = 1
+                print(f'Aktivität {ACTIVITIES[activity_no]} abgeschlossen!')
                 activity_no += 1
+                
                 if activity_no >= (len(ACTIVITIES)):
                     print("Alle Activities sind durch, Versuch abgeschlossen!")
                     os._exit(0)
+                else:
+                    print(f'Drücke Button 1, um die erste Wiederholung von {ACTIVITIES[activity_no]} zu starten')
             else:
                 print(f'Drücke Button 1, um die nächste Wiederholung von {ACTIVITIES[activity_no]} zu starten')
 
