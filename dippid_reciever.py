@@ -1,4 +1,4 @@
-import time, os
+import time
 from collections import deque
 from DIPPID import SensorUDP
 
@@ -25,45 +25,40 @@ gyro_z = deque(maxlen=WINDOW_SIZE)
 
 def handle_button_1(data):
     global training, id, timestamp, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z
-    print("Button 1")
+
     if data == 1:
-        if training:
-            print("Input deaktiviert")
-            training = False
-            ids.clear()
-            timestamp.clear()
-            acc_x.clear()
-            acc_y.clear()
-            acc_z.clear()
-            gyro_x.clear()
-            gyro_y.clear()
-            gyro_z.clear()
-        else:
+        if not training:
             print("Input aktiviert")
             training = True
+            get_live_sensor_data()
 
 sensor.register_callback('button_1', handle_button_1)
 
-while True:
-    if training:
-            start_time = time.time()
-            ids.append(id)
-            timestamp.append(start_time)
-            acc_x.append(sensor.get_value('accelerometer')['x'])
-            acc_y.append(sensor.get_value('accelerometer')['y'])
-            acc_z.append(sensor.get_value('accelerometer')['z'])
-            gyro_x.append(sensor.get_value('gyroscope')['x'])
-            gyro_y.append(sensor.get_value('gyroscope')['y'])
-            gyro_z.append(sensor.get_value('gyroscope')['z'])
+def get_live_sensor_data():
+    while training:
+        start_time = time.time()
+        ids.append(id)
+        timestamp.append(start_time)
+        acc_x.append(sensor.get_value('accelerometer')['x'])
+        acc_y.append(sensor.get_value('accelerometer')['y'])
+        acc_z.append(sensor.get_value('accelerometer')['z'])
+        gyro_x.append(sensor.get_value('gyroscope')['x'])
+        gyro_y.append(sensor.get_value('gyroscope')['y'])
+        gyro_z.append(sensor.get_value('gyroscope')['z'])
 
-            print(f'id: {id}, t: {timestamp[-1]}, ax: {acc_x[-1]}, ay: {acc_y[-1]}, az: {acc_z[-1]}, gx: {gyro_x[-1]}, gy: {gyro_y[-1]}, gz: {gyro_z[-1]}')
-            id += 1
-            elapsed_time = time.time() - start_time
-            sleep_time = SAMPLE_RATE - elapsed_time
+        print(f'id: {id}, t: {timestamp[-1]}, ax: {acc_x[-1]}, ay: {acc_y[-1]}, az: {acc_z[-1]}, gx: {gyro_x[-1]}, gy: {gyro_y[-1]}, gz: {gyro_z[-1]}')
+        id += 1
+        elapsed_time = time.time() - start_time
+        sleep_time = SAMPLE_RATE - elapsed_time
 
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-            else:
-                print(f'Daten Abfangen dauert länger als ein Sample-Interval! Sleep-Time: {sleep_time}') 
-    else:
-        time.sleep(SAMPLE_RATE)
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+        else:
+            print(f'Daten Abfangen dauert länger als ein Sample-Interval! Sleep-Time: {sleep_time}')
+
+
+def stop_training():
+    global training
+
+    print("Training gestoppt (DIPPID)")
+    training = False 

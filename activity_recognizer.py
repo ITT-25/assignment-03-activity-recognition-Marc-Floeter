@@ -1,9 +1,8 @@
 # this program recognizes activities
 
-import os
+import time, os
 import pandas as pd
 import numpy as np
-import pickle
 from matplotlib import pyplot as plt
 from sklearn import svm
 from sklearn.model_selection import train_test_split
@@ -33,6 +32,9 @@ minmax_scaler = None
 classifier = None
 
 loading = True
+training = False
+current_prediction = None
+
 
 def main():
     global loading
@@ -43,7 +45,6 @@ def main():
     evaluate_classifier()
     loading = False
     live_prediction()
-
 
 ########################################################################################################################################################################################
 # DATEN LADEN UND PREPROCESSING
@@ -160,16 +161,20 @@ def evaluate_classifier():
 ##########################################################################################
 
 def live_prediction():
+    global training, current_prediction
+
     print("Starte Live-Erkennung...")
     while True:
-        if dr.training:
+        training = dr.training
+        if training:
             time.sleep(PREDICTION_RATE)
             features_live = extract_features_live_data()
             if features: # Also eigentlich: falls genügend Daten im Buffer gesammelt waren
                 standardized_features_live = standard_scaler.transform([features_live])
                 normalized_features_live = minmax_scaler.transform([standardized_features_live])
-                prediction = model.predict(normalize_features_live)[0]
-                print(f"Aktuelle Aktivität: {prediction}")
+                current_prediction = classifier.predict(normalized_features_live)[0]
+                print(f"Aktuelle Aktivität: {current_prediction}")
+                
             else:
                 print("Nicht genügend Daten im Buffer")
         else:
@@ -190,6 +195,11 @@ def extract_features_live_data():
             np.max(buffer_array)
         ]
     return features
+
+
+def stop_training():
+    print("Training gestoppt (AR)")
+    dr.stop_training()
 
 ##########################################################################################
 if __name__ == "__main__":
