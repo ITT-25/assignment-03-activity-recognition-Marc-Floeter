@@ -5,8 +5,9 @@ from DIPPID import SensorUDP
 
 ACTIVITIES = ["jumpingjack", "lifting", "rowing", "running"] # jumpingjack, lifting, rowing oder running
 REPS_PER_ACTIVITY = 5
+SAMPLE_RATE = 0.0001
 SAMPLE_LENGTH = 10 # in s
-SAVE_DATA_PATH = "data/marc"
+SAVE_DATA_PATH = "marc"
 
 logging = False
 writer = None
@@ -52,7 +53,6 @@ while True:
             gyro_x.append(sensor.get_value('gyroscope')['x'])
             gyro_y.append(sensor.get_value('gyroscope')['y'])
             gyro_z.append(sensor.get_value('gyroscope')['z'])
-            # print(f'id: {id}, t: {timestamp}, ax: {acc_y}, ay: {acc_x}, az: {acc_z}, gx: {gyro_x}, gy: {gyro_y}, gz: {gyro_z}')
         else:
             print(f'Logging beendet für {ACTIVITIES[activity_no]}-{rep_no}/{REPS_PER_ACTIVITY}.') 
 
@@ -84,4 +84,4 @@ while True:
             else:
                 print(f'Drücke Button 1, um die nächste Wiederholung von {ACTIVITIES[activity_no]} zu starten')
 
-    time.sleep(0.0001)
+    time.sleep(SAMPLE_RATE)
