@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 # Parameter
 DATA_DIR = 'data'
@@ -12,6 +13,9 @@ STEP_SIZE = 100
 
 ACTIVITIES = ["jumpingjack", "lifting", "rowing", "running"]
 COLUMNS = ["acc_x", "acc_y", "acc_z", "gyro_x", "gyro_y", "gyro_z"]
+
+X = []
+y = []
 
 def main():
     X, y = load_data()
@@ -72,10 +76,15 @@ def extract_features(window):
         ]
     return features
 
-# Beispiel: 80% Training, 20% Test
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
+def split_train_test_data():
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+def normalize_data():
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
 
 if __name__ == "__main__":
     main() 
