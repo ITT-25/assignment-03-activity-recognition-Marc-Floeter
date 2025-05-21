@@ -1,7 +1,7 @@
 # this program visualizes activities with pyglet
 
 import random
-import activity_recognizer, dippid_reciever
+import activity_recognizer as ar
 import pyglet
 
 ACTIVITIES = ["jumpingjack", "lifting", "rowing", "running"]
@@ -9,6 +9,7 @@ ROUND_TIME = 10
 current_activity = None
 
 def main():
+    ar.main()
     choose_activity()
     print("Hallo Sportskanone! Bereit für ein paar Übungen?")
     print(f'Starte deine erste Runde {current_activity} mit Button 1 und mache die Übung für {ROUND_TIME} Sekunden!')
